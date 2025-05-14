@@ -1,3 +1,4 @@
+<?php
 /**
  * Custom DataLayer push for GA4 purchase event in WooCommerce.
  * Production-ready, single file, PSR-12, no debug logs.
@@ -125,3 +126,4 @@ function datalayer_purchase_fallback()
     }
 }
 add_action('wp_footer', 'datalayer_purchase_fallback');
+?>
