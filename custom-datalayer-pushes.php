@@ -27,6 +27,9 @@ function get_woocommerce_purchase_item_data($product, $quantity = 1) {
  */
 add_action('woocommerce_thankyou', 'datalayer_purchase_event', 10, 1);
 function datalayer_purchase_event($order_id) {
+    // Debug log to confirm hook is firing
+    error_log('DataLayer: woocommerce_thankyou hook fired for order ' . $order_id);
+
     // Get the order
     $order = wc_get_order($order_id);
     if (!$order) {
@@ -52,6 +55,13 @@ function datalayer_purchase_event($order_id) {
         return;
     }
 
+    // Get additional parameters
+    $coupons = $order->get_coupon_codes();
+    $coupon_string = !empty($coupons) ? implode(',', $coupons) : '';
+    $discount = floatval($order->get_total_discount());
+    $tax = floatval($order->get_total_tax());
+    $shipping = floatval($order->get_shipping_total());
+
     // DataLayer push
     ?>
     <script>
@@ -62,15 +72,23 @@ function datalayer_purchase_event($order_id) {
                 currency: '<?php echo esc_js($order->get_currency()); ?>',
                 value: <?php echo floatval($order->get_total()); ?>,
                 transaction_id: '<?php echo esc_js($order_id); ?>',
+                coupon: '<?php echo esc_js($coupon_string); ?>',
+                discount: <?php echo $discount; ?>,
+                tax: <?php echo $tax; ?>,
+                shipping: <?php echo $shipping; ?>,
                 items: <?php echo wp_json_encode($items); ?>
             }
         });
-        console.log('Purchase DataLayer Push:', {
+        console.log('Purchase DataLayer Push (Primary):', {
             event: 'purchase',
             ecommerce: {
                 currency: '<?php echo esc_js($order->get_currency()); ?>',
                 value: <?php echo floatval($order->get_total()); ?>,
                 transaction_id: '<?php echo esc_js($order_id); ?>',
+                coupon: '<?php echo esc_js($coupon_string); ?>',
+                discount: <?php echo $discount; ?>,
+                tax: <?php echo $tax; ?>,
+                shipping: <?php echo $shipping; ?>,
                 items: <?php echo wp_json_encode($items); ?>
             }
         });
@@ -84,6 +102,9 @@ function datalayer_purchase_event($order_id) {
 add_action('wp_footer', 'datalayer_purchase_fallback');
 function datalayer_purchase_fallback() {
     if (is_order_received_page()) {
+        // Debug log to confirm fallback
+        error_log('DataLayer: Fallback triggered for order received page');
+
         $order_id = absint(get_query_var('order-received'));
         if (!$order_id) {
             error_log('DataLayer Purchase Fallback Error: No order ID found');
@@ -118,6 +139,13 @@ function datalayer_purchase_fallback() {
             return;
         }
 
+        // Get additional parameters
+        $coupons = $order->get_coupon_codes();
+        $coupon_string = !empty($coupons) ? implode(',', $coupons) : '';
+        $discount = floatval($order->get_total_discount());
+        $tax = floatval($order->get_total_tax());
+        $shipping = floatval($order->get_shipping_total());
+
         ?>
         <script>
             window.dataLayer = window.dataLayer || [];
@@ -127,6 +155,10 @@ function datalayer_purchase_fallback() {
                     currency: '<?php echo esc_js($order->get_currency()); ?>',
                     value: <?php echo floatval($order->get_total()); ?>,
                     transaction_id: '<?php echo esc_js($order_id); ?>',
+                    coupon: '<?php echo esc_js($coupon_string); ?>',
+                    discount: <?php echo $discount; ?>,
+                    tax: <?php echo $tax; ?>,
+                    shipping: <?php echo $shipping; ?>,
                     items: <?php echo wp_json_encode($items); ?>
                 }
             });
@@ -136,6 +168,10 @@ function datalayer_purchase_fallback() {
                     currency: '<?php echo esc_js($order->get_currency()); ?>',
                     value: <?php echo floatval($order->get_total()); ?>,
                     transaction_id: '<?php echo esc_js($order_id); ?>',
+                    coupon: '<?php echo esc_js($coupon_string); ?>',
+                    discount: <?php echo $discount; ?>,
+                    tax: <?php echo $tax; ?>,
+                    shipping: <?php echo $shipping; ?>,
                     items: <?php echo wp_json_encode($items); ?>
                 }
             });
