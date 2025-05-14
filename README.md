@@ -1,6 +1,6 @@
 # WooCommerce Custom Fixes
 
-A collection of PHP fixes for WooCommerce integrations on WordPress, enhancing event tracking with tools like GTM4WP and Klaviyo.
+A collection of PHP fixes for WooCommerce integrations on WordPress, enhancing event tracking with tools like GTM4WP.
 
 ## Available Fixes
 
