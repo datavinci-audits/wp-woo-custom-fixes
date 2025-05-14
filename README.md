@@ -6,7 +6,7 @@ A collection of PHP fixes for WooCommerce integrations on WordPress, enhancing e
 
 ### `custom_purchase_datalayer.php`
 
-**Why Required:** The default WooCommerce `woocommerce_thankyou` hook can fail due to theme or plugin conflicts, breaking GA4 purchase tracking via GTM4WP. Renaming the event and ensuring `item_id` is an integer improves compatibility.
+**Why Required:** The default WooCommerce `woocommerce_thankyou` hook can fail due to theme or plugin conflicts, breaking GA4 purchase tracking via GTM4WP. 
 
 **What It Does:** Pushes a `custom_purchase` event to the DataLayer for GA4, including essential order details like currency, value, transaction ID, and item information.
 
