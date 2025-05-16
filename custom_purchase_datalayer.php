@@ -2,6 +2,7 @@
 /*
  * Custom DataLayer push for GA4 custom_purchase event in WooCommerce.
  * Production-ready, single file, strict types.
+ * Modified to include AvantLink and customer details, with new_customer, country, state in customer object.
  */
 
 // Prevent direct access
@@ -13,23 +14,26 @@ if (!defined('ABSPATH')) {
  * Get item data for DataLayer.
  *
  * @param WC_Product $product The WooCommerce product.
- * @param int        $quantity The item quantity.
+ * @param WC_Order_Item_Product $item The order item.
  * @return array|null Item data or null if invalid product.
  */
-function get_woocommerce_item_data(WC_Product $product, int $quantity = 1): ?array
+function get_woocommerce_item_data(WC_Product $product, WC_Order_Item_Product $item): ?array
 {
     if (!is_a($product, 'WC_Product')) {
         return null;
     }
     $category = wp_get_post_terms($product->get_id(), 'product_cat', ['fields' => 'names']);
+    $variant_sku = $product->get_type() === 'variation' ? $product->get_sku() : '';
+    $quantity = (int) $item->get_quantity();
     return [
         'item_id' => $product->get_id(),
         'item_name' => $product->get_name(),
         'sku' => $product->get_sku() ?: (string) $product->get_id(),
-        'price' => (float) $product->get_price(),
+        'price' => $quantity > 0 ? (float) ($item->get_total() / $quantity) : 0.0,
         'stockstatus' => $product->is_in_stock() ? 'instock' : 'outofstock',
         'item_category' => !empty($category) ? $category[0] : '',
-        'quantity' => $quantity
+        'quantity' => $quantity,
+        'item_variant' => $variant_sku
     ];
 }
 
@@ -45,7 +49,7 @@ function generate_custom_purchase_datalayer_script(WC_Order $order): void
     foreach ($order->get_items() as $item) {
         $product = $item->get_product();
         if ($product instanceof WC_Product) {
-            $item_data = get_woocommerce_item_data($product, (int) $item->get_quantity());
+            $item_data = get_woocommerce_item_data($product, $item);
             if ($item_data) {
                 $items[] = $item_data;
             }
@@ -60,6 +64,26 @@ function generate_custom_purchase_datalayer_script(WC_Order $order): void
     $discount = (float) $order->get_total_discount();
     $tax = (float) $order->get_total_tax();
     $shipping = (float) $order->get_shipping_total();
+    $subtotal = (float) ($order->get_subtotal() - $discount);
+    $new_customer = $order->get_user_id() > 0 ? 'N' : 'Y';
+
+    // Customer details for enhanced conversions and AvantLink
+    $customer = [
+        'email' => $order->get_billing_email(),
+        'first_name' => $order->get_billing_first_name(),
+        'last_name' => $order->get_billing_last_name(),
+        'phone' => $order->get_billing_phone(),
+        'new_customer' => $new_customer,
+        'country' => $order->get_billing_country(),
+        'state' => $order->get_billing_state(),
+        'address' => [
+            'street' => trim($order->get_billing_address_1() . ' ' . $order->get_billing_address_2()),
+            'city' => $order->get_birkling_city(),
+            'region' => $order->get_billing_state(),
+            'postal_code' => $order->get_billing_postcode(),
+            'country' => $order->get_billing_country()
+        ]
+    ];
 
     ?>
     <script async>
@@ -68,18 +92,18 @@ function generate_custom_purchase_datalayer_script(WC_Order $order): void
             var ecommerce = {
                 'currency': '<?php echo esc_js($order->get_currency()); ?>',
                 'value': <?php echo $order->get_total(); ?>,
+                'subtotal': <?php echo $subtotal; ?>,
                 'transaction_id': '<?php echo esc_js($order->get_id()); ?>',
                 'discount': <?php echo $discount; ?>,
                 'tax': <?php echo $tax; ?>,
                 'shipping': <?php echo $shipping; ?>,
+                'coupons': '<?php echo esc_js(implode(',', $coupons)); ?>',
                 'items': <?php echo wp_json_encode($items); ?>
             };
-            <?php if (!empty($coupons)) : ?>
-                ecommerce.coupon = '<?php echo esc_js(implode(',', $coupons)); ?>';
-            <?php endif; ?>
             window.dataLayer.push({
                 'event': 'custom_purchase',
-                'ecommerce': ecommerce
+                'ecommerce': ecommerce,
+                'customer': <?php echo wp_json_encode($customer); ?>
             });
         })();
     </script>
@@ -129,4 +153,3 @@ function datalayer_custom_purchase_fallback(): void
     }
 }
 add_action('wp_footer', 'datalayer_custom_purchase_fallback', 10);
-?>
