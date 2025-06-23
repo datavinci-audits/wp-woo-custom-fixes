@@ -16,11 +16,37 @@ A collection of PHP fixes for WooCommerce integrations on WordPress, enhancing e
 
 ```javascript
 window.dataLayer.push({
-    'event': 'custom_purchase',
-    'ecommerce': {
-        'currency': 'USD',
-        'value': 199.00,
-        'transaction_id': '12345',
-        'items': [{'item_id': 83, 'item_name': 'Emotiv Flex Cap', /* ... */}]
-    }
+  event: 'custom_purchase',
+  ecommerce: {
+    currency: 'USD',
+    value: 120.00,
+    subtotal: 100.00,
+    transaction_id: '12345',
+    discount: 10.00,
+    tax: 8.00,
+    shipping: 12.00,
+    coupons: 'SAVE10,SUMMER20',
+    items: [
+      {
+        item_id: '1001',
+        item_name: 'Product Name',
+        sku: 'SKU123',
+        price: 50.00,
+        stockstatus: 'instock',
+        item_category: 'Category',
+        quantity: 2,
+        item_variant: 'VARIANT_SKU'
+      }
+    ]
+  },
+  customer: {
+    email: 'customer@example.com',
+    first_name: 'John',
+    last_name: 'Doe',
+    phone: '123-456-7890',
+    new_customer: 'Y',
+    country: 'US',
+    state: 'CA',
+    address: { /* ... */ }
+  }
 });
