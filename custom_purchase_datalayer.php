@@ -78,7 +78,7 @@ function generate_custom_purchase_datalayer_script(WC_Order $order): void
         'state' => $order->get_billing_state(),
         'address' => [
             'street' => trim($order->get_billing_address_1() . ' ' . $order->get_billing_address_2()),
-            'city' => $order->get_birkling_city(),
+            'city' => $order->get_billing_city(),
             'region' => $order->get_billing_state(),
             'postal_code' => $order->get_billing_postcode(),
             'country' => $order->get_billing_country()
