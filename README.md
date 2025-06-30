@@ -15,38 +15,33 @@ A collection of PHP fixes for WooCommerce integrations on WordPress, enhancing e
 **Example DataLayer Push:**
 
 ```javascript
-window.dataLayer.push({
-  event: 'custom_purchase',
-  ecommerce: {
-    currency: 'USD',
-    value: 120.00,
-    subtotal: 100.00,
-    transaction_id: '12345',
-    discount: 10.00,
-    tax: 8.00,
-    shipping: 12.00,
-    coupons: 'SAVE10,SUMMER20',
-    items: [
-      {
-        item_id: '1001',
-        item_name: 'Product Name',
-        sku: 'SKU123',
-        price: 50.00,
-        stockstatus: 'instock',
-        item_category: 'Category',
-        quantity: 2,
-        item_variant: 'VARIANT_SKU'
-      }
-    ]
-  },
-  customer: {
-    email: 'customer@example.com',
-    first_name: 'John',
-    last_name: 'Doe',
-    phone: '123-456-7890',
-    new_customer: 'Y',
-    country: 'US',
-    state: 'CA',
-    address: { /* ... */ }
-  }
-});
+{
+    event: 'custom_purchase',
+    ecommerce: {
+        currency: 'USD',
+        value: 100.00,
+        subtotal: 90.00,
+        transaction_id: '1234',
+        discount: 10.00,
+        tax: 8.00,
+        shipping: 5.00,
+        coupons: 'SAVE10',
+        payment_method: 'Credit Card', // or 'Bank Transfer', 'Stripe', etc.
+        items: [/* ... */]
+    },
+    customer: {
+        email: 'customer@example.com',
+        first_name: 'John',
+        last_name: 'Doe',
+        new_customer: 'Y',
+        country: 'US',
+        state: 'CA',
+        address: {
+            street: '123 Main St',
+            city: 'San Francisco',
+            region: 'CA',
+            postal_code: '94105',
+            country: 'US'
+        }
+    }
+}
