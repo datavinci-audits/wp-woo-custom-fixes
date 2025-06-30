@@ -1,8 +1,6 @@
 <?php
 /*
  * Custom DataLayer push for GA4 custom_purchase event in WooCommerce.
- * Production-ready, single file, strict types.
- * Modified to include AvantLink, customer details, and payment method.
  */
 
 // Prevent direct access
