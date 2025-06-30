@@ -99,7 +99,7 @@ function generate_custom_purchase_datalayer_script(WC_Order $order): void
                 'tax': <?php echo $tax; ?>,
                 'shipping': <?php echo $shipping; ?>,
                 'coupons': '<?php echo esc_js(implode(',', $coupons)); ?>',
-                'payment_method': '<?php echo esc_js($payment_method); ?>',
+                'payment_type': '<?php echo esc_js($payment_method); ?>',
                 'items': <?php echo wp_json_encode($items); ?>
             };
             window.dataLayer.push({
