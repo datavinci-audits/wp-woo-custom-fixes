@@ -5,8 +5,6 @@
  * Modified to include AvantLink, customer details, and payment method.
  */
 
-declare(strict_types=1);
-
 // Prevent direct access
 if (!defined('ABSPATH')) {
     exit;
@@ -59,7 +57,6 @@ function generate_custom_purchase_datalayer_script(WC_Order $order): void
     }
 
     if (empty($items)) {
-        error_log('No valid items found for order ' . $order->get_id());
         return;
     }
 
@@ -73,24 +70,24 @@ function generate_custom_purchase_datalayer_script(WC_Order $order): void
 
     // Customer details for enhanced conversions and AvantLink
     $customer = [
-        'email' => esc_js($order->get_billing_email()),
-        'first_name' => esc_js($order->get_billing_first_name()),
-        'last_name' => esc_js($order->get_billing_last_name()),
-        'phone' => esc_js($order->get_billing_phone()),
+        'email' => $order->get_billing_email(),
+        'first_name' => $order->get_billing_first_name(),
+        'last_name' => $order->get_billing_last_name(),
+        'phone' => $order->get_billing_phone(),
         'new_customer' => $new_customer,
-        'country' => esc_js($order->get_billing_country()),
-        'state' => esc_js($order->get_billing_state()),
+        'country' => $order->get_billing_country(),
+        'state' => $order->get_billing_state(),
         'address' => [
-            'street' => esc_js(trim($order->get_billing_address_1() . ' ' . $order->get_billing_address_2())),
-            'city' => esc_js($order->get_billing_city()),
-            'region' => esc_js($order->get_billing_state()),
-            'postal_code' => esc_js($order->get_billing_postcode()),
-            'country' => esc_js($order->get_billing_country())
+            'street' => trim($order->get_billing_address_1() . ' ' . $order->get_billing_address_2()),
+            'city' => $order->get_billing_city(),
+            'region' => $order->get_billing_state(),
+            'postal_code' => $order->get_billing_postcode(),
+            'country' => $order->get_billing_country()
         ]
     ];
 
     ?>
-    <script>
+    <script async>
         (function () {
             window.dataLayer = window.dataLayer || [];
             var ecommerce = {
@@ -102,7 +99,7 @@ function generate_custom_purchase_datalayer_script(WC_Order $order): void
                 'tax': <?php echo $tax; ?>,
                 'shipping': <?php echo $shipping; ?>,
                 'coupons': '<?php echo esc_js(implode(',', $coupons)); ?>',
-                'payment_method': '<?php echo esc_js($payment_method); ?>',
+                'payment_type': '<?php echo esc_js($payment_method); ?>',
                 'items': <?php echo wp_json_encode($items); ?>
             };
             window.dataLayer.push({
@@ -126,7 +123,6 @@ function datalayer_custom_purchase_event(int $order_id): void
     $order_id = (int) $order_id;
     $order = wc_get_order($order_id);
     if (!$order) {
-        error_log('Invalid order ID ' . $order_id . ' in datalayer_custom_purchase_event');
         return;
     }
 
@@ -144,12 +140,10 @@ function datalayer_custom_purchase_fallback(): void
     if (is_checkout() && isset($_GET['order-received'])) {
         $order_id = (int) $_GET['order-received'];
         if (!$order_id) {
-            error_log('Invalid order-received ID in datalayer_custom_purchase_fallback');
             return;
         }
         $order = wc_get_order($order_id);
         if (!$order) {
-            error_log('No order found for ID ' . $order_id . ' in datalayer_custom_purchase_fallback');
             return;
         }
         static $pushed = false;

@@ -26,7 +26,7 @@ A collection of PHP fixes for WooCommerce integrations on WordPress, enhancing e
         tax: 8.00,
         shipping: 5.00,
         coupons: 'SAVE10',
-        payment_method: 'Credit Card', // or 'Bank Transfer', 'Stripe', etc.
+        payment_type: 'Credit Card', // or 'Bank Transfer', 'Stripe', etc.
         items: [/* ... */]
     },
     customer: {
