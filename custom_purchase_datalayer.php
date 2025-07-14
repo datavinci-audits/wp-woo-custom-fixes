@@ -64,7 +64,7 @@ function generate_custom_purchase_datalayer_script(WC_Order $order): void
     $shipping = (float) $order->get_shipping_total();
     $subtotal = (float) ($order->get_subtotal() - $discount);
     $new_customer = $order->get_user_id() > 0 ? 'N' : 'Y';
-    $payment_method = $order->get_payment_method_title() ?: $order->get_payment_method(); // Use title, fallback to ID
+    $payment_method = $order->$order->get_payment_method(); //Duc's update
 
     // Customer details for enhanced conversions and AvantLink
     $customer = [
