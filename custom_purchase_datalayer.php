@@ -27,7 +27,7 @@ function get_woocommerce_item_data(WC_Product $product, WC_Order_Item_Product $i
         'item_id' => $product->get_id(),
         'item_name' => $product->get_name(),
         'sku' => $product->get_sku() ?: (string) $product->get_id(),
-        'price' => $quantity > 0 ? (float) ($item->get_total() / $quantity) : 0.0,
+        'price' => (float) $product->get_regular_price(), // Use original price
         'stockstatus' => $product->is_in_stock() ? 'instock' : 'outofstock',
         'item_category' => !empty($category) ? $category[0] : '',
         'quantity' => $quantity,
